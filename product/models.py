@@ -18,7 +18,7 @@ class Product(models.Model):
 class Review(models.Model):
     text = models.TextField()
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
-    stars = models.PositiveSmallIntegerField(default=1, choices=[(i, str(i)) for i in range(1, 6)])
+    stars = models.IntegerField(default=1, choices=[(i, str(i)) for i in range(1, 6)])
 
     def __str__(self):
         return self.text[:50]

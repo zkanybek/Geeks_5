@@ -10,6 +10,13 @@ from .views import (
     review_detail,
     CategoryListAPIView,
     ProductReviewListAPIView,
+
+    category_list_create,
+    category_update_delete,
+    product_list_create,
+    product_update_delete,
+    review_list_create,
+    review_update_delete,
 )
 
 
@@ -24,4 +31,13 @@ urlpatterns = [
     path('reviews/', review_list, name='review-list'),
     path('reviews/<int:pk>/', review_detail, name='review-detail'),
     path('products/reviews/', ProductReviewListAPIView.as_view(), name='product-reviews'),
+
+    path('categories/', category_list_create),
+    path('categories/<int:id>/', category_update_delete),
+
+    path('products/', product_list_create),
+    path('products/<int:id>/', product_update_delete),
+
+    path('reviews/', review_list_create),
+    path('reviews/<int:id>/', review_update_delete),
 ]
