@@ -7,4 +7,6 @@ admin.site.register(Category)
 admin.site.register(Review)
 
 
+
+
 # Register your models here.
