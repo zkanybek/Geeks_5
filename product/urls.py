@@ -1,24 +1,23 @@
 from django.urls import path
 from .views import (
-    CategoryListCreateView, CategoryDetailView,
-    ProductListCreateView, ProductDetailView,
-    ReviewListCreateView, ReviewDetailView,
-    ProductWithReviewsView
+    CategoryListCreateView,
+    CategoryDetailUpdateDeleteView,
+    ProductListCreateView,
+    ProductDetailUpdateDeleteView,
+    ReviewListCreateView,
+    ReviewDetailUpdateDeleteView,
+    ProductReviewsView,
 )
 
 urlpatterns = [
-    # Categories
     path('categories/', CategoryListCreateView.as_view(), name='category-list-create'),
-    path('categories/<int:pk>/', CategoryDetailView.as_view(), name='category-detail'),
+    path('categories/<int:pk>/', CategoryDetailUpdateDeleteView.as_view(), name='category-detail-update-delete'),
 
-    # Products
     path('products/', ProductListCreateView.as_view(), name='product-list-create'),
-    path('products/<int:pk>/', ProductDetailView.as_view(), name='product-detail'),
+    path('products/<int:pk>/', ProductDetailUpdateDeleteView.as_view(), name='product-detail-update-delete'),
 
-    # Reviews
     path('reviews/', ReviewListCreateView.as_view(), name='review-list-create'),
-    path('reviews/<int:pk>/', ReviewDetailView.as_view(), name='review-detail'),
+    path('reviews/<int:pk>/', ReviewDetailUpdateDeleteView.as_view(), name='review-detail-update-delete'),
 
-    # Products with nested reviews
-    path('products/reviews/', ProductWithReviewsView.as_view(), name='product-with-reviews'),
+    path('products/reviews/', ProductReviewsView.as_view(), name='product-reviews'),
 ]
