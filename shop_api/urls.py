@@ -21,9 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include('product.urls')),
 
-    # shop_api/urls.py
     path('api/v1/users/', include('accounts.urls')),
     path('api/v1/users/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-
 
 ]
