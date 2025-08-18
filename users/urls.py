@@ -1,9 +1,21 @@
 from django.urls import path
-from .views import RegisterView, ConfirmView, LoginView
-
+from users.views import RegistrationAPIView, AuthorizationAPIView, ConfirmUserAPIView
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView
+)
+from users.views import CustomTokenOptainPairView
+from users.oauth import GoogleLoginAPIView
 
 urlpatterns = [
-    path('register/', RegisterView.as_view(), name='register'),
-    path('confirm/', ConfirmView.as_view(), name='confirm'),
-    path('login/', LoginView.as_view(), name='login'),
+    path('registration/', RegistrationAPIView.as_view()),
+    path('authorization/', AuthorizationAPIView.as_view()),
+    path('confirm/', ConfirmUserAPIView.as_view()),
+
+    path('jwt/token/', CustomTokenOptainPairView.as_view(), name='token_obtain_pair'),
+    path('jwt/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('jwt/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+
+    path('google-login/', GoogleLoginAPIView.as_view()),
 ]

@@ -1,40 +1,60 @@
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
-from django.contrib.auth.password_validation import validate_password
+# from django.contrib.auth.models import User
+from rest_framework.exceptions import ValidationError
+from .models import ConfirmationCode
+from users.models import CustomUser
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-User = get_user_model()
 
-class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
-    password2 = serializers.CharField(write_only=True, required=True)
-
-    class Meta:
-        model = User
-        fields = ('email', 'password', 'password2', 'first_name', 'last_name', 'phone_number', 'bio')
-
-    def validate(self, attrs):
-        if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError({"password": "Password fields didn't match."})
-        return attrs
-
-    def create(self, validated_data):
-        validated_data.pop('password2')
-        user = User.objects.create(
-            email=validated_data['email'],
-            first_name=validated_data.get('first_name', ''),
-            last_name=validated_data.get('last_name', ''),
-            phone_number=validated_data.get('phone_number', ''),
-            bio=validated_data.get('bio', '')
-        )
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
-    
-    
-class ConfirmSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    code = serializers.CharField(max_length=6)
-
-class LoginSerializer(serializers.Serializer):
+class UserBaseSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
+
+
+class AuthValidateSerializer(UserBaseSerializer):
+    pass
+
+
+class RegisterValidateSerializer(UserBaseSerializer):
+    def validate_email(self, email):
+        try:
+            CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            return email
+        raise ValidationError('Email уже существует!')
+
+
+class ConfirmationSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+    code = serializers.CharField(max_length=6)
+
+    def validate(self, attrs):
+        user_id = attrs.get('user_id')
+        code = attrs.get('code')
+
+        try:
+            user = CustomUser.objects.get(id=user_id)
+        except CustomUser.DoesNotExist:
+            raise ValidationError('User не существует!')
+
+        try:
+            confirmation_code = ConfirmationCode.objects.get(user=user)
+        except ConfirmationCode.DoesNotExist:
+            raise ValidationError('Код подтверждения не найден!')
+
+        if confirmation_code.code != code:
+            raise ValidationError('Неверный код подтверждения!')
+
+        return attrs
+    
+
+class CustomTokenOptainSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token["email"] = user.email
+        return token
+    
+
+class GoogleLoginSerializer(serializers.Serializer):
+    code = serializers.CharField()

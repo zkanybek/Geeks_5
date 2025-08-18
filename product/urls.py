@@ -1,23 +1,19 @@
-from django.urls import path
+from django.urls import path, include
 from .views import (
-    CategoryListCreateView,
-    CategoryDetailUpdateDeleteView,
-    ProductListCreateView,
-    ProductDetailUpdateDeleteView,
-    ReviewListCreateView,
-    ReviewDetailUpdateDeleteView,
-    ProductReviewsView,
+    CategoryListCreateAPIView,
+    CategoryDetailAPIView,
+    ProductListCreateAPIView,
+    ProductDetailAPIView,
+    ReviewViewSet,
+    ProductWithReviewsAPIView,
+    OwnerProductListAPIView
 )
 
 urlpatterns = [
-    path('categories/', CategoryListCreateView.as_view(), name='category-list-create'),
-    path('categories/<int:pk>/', CategoryDetailUpdateDeleteView.as_view(), name='category-detail-update-delete'),
-
-    path('products/', ProductListCreateView.as_view(), name='product-list-create'),
-    path('products/<int:pk>/', ProductDetailUpdateDeleteView.as_view(), name='product-detail-update-delete'),
-
-    path('reviews/', ReviewListCreateView.as_view(), name='review-list-create'),
-    path('reviews/<int:pk>/', ReviewDetailUpdateDeleteView.as_view(), name='review-detail-update-delete'),
-
-    path('products/reviews/', ProductReviewsView.as_view(), name='product-reviews'),
+    path('', ProductListCreateAPIView.as_view()),
+    path('<int:id>/', ProductDetailAPIView.as_view()),
+    path('categories/', CategoryListCreateAPIView.as_view()),
+    path('categories/<int:id>/', CategoryDetailAPIView.as_view()),
+    path('reviews/', ProductWithReviewsAPIView.as_view()),
+    path('my-products/', OwnerProductListAPIView.as_view()),
 ]

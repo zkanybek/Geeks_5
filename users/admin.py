@@ -1,14 +1,18 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from users.models import CustomUser
+from users.models import CustomUser, ConfirmationCode
+# Register your models here.
+
 
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
     list_display = ("id", "email")
-    fildsets = (
-        (None, {"fields": ("email", "password")}),
-        ("Personal info", {"fields": ("username", "first_name", "last_name")}),
-        ("Permissions", {"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")}),
-        ("Important dates", {"fields": ("last_login", "date_joined")}),
+    fieldsets = (
+        (None, {'fields': ('email', 'password', 'is_staff', 'is_active')}),
+        ('Personal info', {'fields': ('username',)}),
+        ('Date information', {'fields': ('last_login',)}),
     )
-# admin.site.register(CustomUser)
+
+@admin.register(ConfirmationCode)
+class ConfirmationCode(admin.ModelAdmin):
+    list_display = ["id"]
