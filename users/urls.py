@@ -12,6 +12,9 @@ urlpatterns = [
     path('registration/', RegistrationAPIView.as_view()),
     path('authorization/', AuthorizationAPIView.as_view()),
     path('confirm/', ConfirmUserAPIView.as_view()),
+    
+    path('login/', CustomTokenOptainPairView.as_view(), name='token_obtain_pair'),
+    path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     path('jwt/token/', CustomTokenOptainPairView.as_view(), name='token_obtain_pair'),
     path('jwt/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

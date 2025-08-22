@@ -6,6 +6,7 @@ from users.models import CustomUser
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
+
 class UserBaseSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
@@ -52,9 +53,10 @@ class CustomTokenOptainSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        token["email"] = user.email
+        token['birthday'] = str(user.birthday) if user.birthday else None
         return token
     
 
 class GoogleLoginSerializer(serializers.Serializer):
     code = serializers.CharField()
+    

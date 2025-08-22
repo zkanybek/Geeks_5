@@ -105,6 +105,6 @@ class ConfirmUserAPIView(CreateAPIView):
             }
         )
     
-
+#
 class CustomTokenOptainPairView(TokenObtainPairView):
     serializer_class = CustomTokenOptainSerializer

@@ -23,6 +23,20 @@ from common.permissions import IsOwner, IsAnonymous, IsModerator
 from django.core.cache import cache
 PAGE_SIZE = 5
 
+from rest_framework import generics, permissions
+from rest_framework.exceptions import ValidationError
+from common.validators import validate_age_18
+
+class ProductCreateView(generics.CreateAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        validate_age_18(user.birthday)
+        serializer.save(owner=user)
+
 
 class CustomPagination(PageNumberPagination):
     def get_paginated_response(self, data):
