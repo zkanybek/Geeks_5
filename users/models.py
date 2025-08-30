@@ -17,7 +17,7 @@ class CustomUser(AbstractUser):
     is_staff = models.BooleanField(default=False)
     is_confirmed = models.BooleanField(default=False)  # для подтверждения email
 
-    confirmation_code = models.CharField(max_length=128, blank=True, null=True)
+    # confirmation_code = models.CharField(max_length=128, blank=True, null=True)
 
     objects = CustomUserManager()
 

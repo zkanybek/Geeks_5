@@ -19,6 +19,9 @@ import string
 from users.serializers import CustomTokenOptainSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from django.core.cache import cache
+
+
 
 class AuthorizationAPIView(CreateAPIView):
     serializer_class = AuthValidateSerializer
@@ -43,7 +46,6 @@ class AuthorizationAPIView(CreateAPIView):
             data={'error': 'User credentials are wrong!'}
         )
 
-
 class RegistrationAPIView(CreateAPIView):
     serializer_class = RegisterValidateSerializer
 
@@ -54,39 +56,44 @@ class RegistrationAPIView(CreateAPIView):
         email = serializer.validated_data['email']
         password = serializer.validated_data['password']
 
-        # Use transaction to ensure data consistency
         with transaction.atomic():
             user = CustomUser.objects.create_user(
                 email=email,
                 password=password,
                 is_active=False
             )
-            print(f"*" * 10, "user data: {user} and {user.id}")
-            # Create a random 6-digit code
+
+            # Генерация 6-значного кода
             code = ''.join(random.choices(string.digits, k=6))
 
-            print("user: ", user)
-            confirmation_code = ConfirmationCode.objects.create(
-                user=user,
-                code=code
-            )
+            # Сохраняем код в Redis с TTL = 300 секунд (5 минут)
+            cache.set(f"confirm_code:{user.id}", code, timeout=300)
 
         return Response(
             status=status.HTTP_201_CREATED,
             data={
                 'user_id': user.id,
-                'confirmation_code': code
+                'confirmation_code': code  
             }
         )
 
 
 class ConfirmUserAPIView(CreateAPIView):
     serializer_class = ConfirmationSerializer
+
     def post(self, request):
-        serializer = ConfirmationSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         user_id = serializer.validated_data['user_id']
+        code = serializer.validated_data['code']
+
+        stored_code = cache.get(f"confirm_code:{user_id}")
+        if not stored_code:
+            return Response({"error": "Код просрочен или не существует!"}, status=400)
+
+        if stored_code != code:
+            return Response({"error": "Неверный код!"}, status=400)
 
         with transaction.atomic():
             user = CustomUser.objects.get(id=user_id)
@@ -95,7 +102,7 @@ class ConfirmUserAPIView(CreateAPIView):
 
             token, _ = Token.objects.get_or_create(user=user)
 
-            ConfirmationCode.objects.filter(user=user).delete()
+            cache.delete(f"confirm_code:{user_id}")
 
         return Response(
             status=status.HTTP_200_OK,
@@ -104,7 +111,6 @@ class ConfirmUserAPIView(CreateAPIView):
                 'key': token.key
             }
         )
-    
-#
+
 class CustomTokenOptainPairView(TokenObtainPairView):
     serializer_class = CustomTokenOptainSerializer
